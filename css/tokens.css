@@ -1,0 +1,64 @@
+/* Design tokens — Roblox-blocky dark theme. The page is a "game", so it ships dark only. */
+:root {
+  color-scheme: dark;
+
+  /* surfaces */
+  --bg: #0b1026;
+  --bg-2: #111838;
+  --surface: #18214a;
+  --surface-2: #222d5e;
+  --line: rgba(255, 255, 255, 0.1);
+
+  /* brand */
+  --primary: #335fff;      /* Roblox blue */
+  --primary-dark: #1d3bb8;
+  --play: #00804f;         /* Roblox "Play" green, darkened for 5:1 with white text */
+  --play-dark: #00553a;
+  --egg: #ffc83d;
+  --egg-dark: #b8860b;
+  --ocean: #1fb6c9;
+  --accent: #ff5c8a;
+  --accent-dark: #b8325a;
+
+  /* text */
+  --text: #f2f5ff;
+  --muted: #b4bddf;        /* 7.9:1 on --bg */
+  --ink: #0b1026;          /* text on light fills */
+
+  /* rarity */
+  --r-common: #c3cbe3;
+  --r-uncommon: #5bd16e;
+  --r-rare: #3fa9ff;
+  --r-epic: #b07cff;
+  --r-legendary: #ffc83d;
+  --r-mythic: #ff4d6d;
+  --r-secret: linear-gradient(90deg, #ff4d6d, #ffc83d, #5bd16e, #3fa9ff, #b07cff);
+
+  /* shape */
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 22px;
+  --shadow-block: 0 6px 0 rgba(0, 0, 0, 0.35);
+  --shadow-float: 0 18px 40px rgba(0, 0, 0, 0.45);
+
+  /* type */
+  --font-display: 'Bungee', 'Chakra Petch', system-ui, sans-serif;
+  --font-body: 'Chakra Petch', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* spacing (spacious) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 40px;
+  --space-6: 64px;
+  --space-7: 96px;
+
+  /* motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 150ms;
+  --dur: 280ms;
+
+  --nav-h: 64px;
+}

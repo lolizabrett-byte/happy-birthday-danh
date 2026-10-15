@@ -1,0 +1,62 @@
+[
+  {
+    "id": "dragon-west",
+    "name": "Dragon",
+    "rarity": "Mythical",
+    "img": "assets/img/fruits/dragon-west.webp"
+  },
+  {
+    "id": "kitsune",
+    "name": "Kitsune",
+    "rarity": "Mythical",
+    "img": "assets/img/fruits/kitsune.webp"
+  },
+  {
+    "id": "dough",
+    "name": "Dough",
+    "rarity": "Mythical",
+    "img": "assets/img/fruits/dough.webp"
+  },
+  {
+    "id": "venom",
+    "name": "Venom",
+    "rarity": "Mythical",
+    "img": "assets/img/fruits/venom.webp"
+  },
+  {
+    "id": "spirit",
+    "name": "Spirit",
+    "rarity": "Mythical",
+    "img": "assets/img/fruits/spirit.webp"
+  },
+  {
+    "id": "t-rex",
+    "name": "T-Rex",
+    "rarity": "Mythical",
+    "img": "assets/img/fruits/t-rex.webp"
+  },
+  {
+    "id": "buddha",
+    "name": "Buddha",
+    "rarity": "Legendary",
+    "img": "assets/img/fruits/buddha.webp"
+  },
+  {
+    "id": "light",
+    "name": "Light",
+    "rarity": "Rare",
+    "img": "assets/img/fruits/light.webp"
+  },
+  {
+    "id": "flame",
+    "name": "Flame",
+    "rarity": "Uncommon",
+    "img": "assets/img/fruits/flame.webp"
+  },
+  {
+    "id": "ice",
+    "name": "Ice",
+    "rarity": "Uncommon",
+    "img": "assets/img/fruits/ice.webp"
+  }
+]

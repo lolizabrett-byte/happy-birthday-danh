@@ -1,0 +1,188 @@
+/* Mini-games: Steal An Egg, Blox Fruit gacha, cake */
+.game-head { display: flex; align-items: center; gap: var(--space-3); }
+.game-head__icon { width: 72px; height: 72px; border-radius: 18px; box-shadow: var(--shadow-block); flex: none; }
+.game-mount { margin-top: var(--space-4); }
+.leaderboard-mount { margin-top: var(--space-4); }
+.section--egg::before, .section--fruit::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0.18; border-radius: var(--radius-lg);
+  background-size: cover; background-position: center;
+  -webkit-mask-image: linear-gradient(180deg, #000, transparent 70%); mask-image: linear-gradient(180deg, #000, transparent 70%);
+}
+.section--egg::before { background-image: url(../assets/img/steal-an-egg-thumb.jpg); }
+.section--fruit::before { background-image: url(../assets/img/blox-fruits-thumb.jpg); }
+.section--egg, .section--fruit { isolation: isolate; }
+
+/* ---------- Eggs (shared by arena + hatch) ---------- */
+.egg {
+  --c: var(--r-common);
+  width: 56px; height: 70px; padding: 0; border: 0;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.85) 0 7%, transparent 8%),
+    radial-gradient(circle at 65% 55%, rgba(0, 0, 0, 0.12) 0 9%, transparent 10%),
+    radial-gradient(circle at 35% 72%, rgba(0, 0, 0, 0.1) 0 7%, transparent 8%),
+    var(--c);
+  box-shadow: inset -6px -8px 0 rgba(0, 0, 0, 0.18), 0 6px 0 rgba(0, 0, 0, 0.3);
+}
+.egg--rare { --c: var(--r-rare); }
+.egg--epic { --c: var(--r-epic); }
+.egg--legendary { --c: var(--r-legendary); box-shadow: inset -6px -8px 0 rgba(0, 0, 0, 0.18), 0 0 18px var(--r-legendary); }
+.egg--mythic { --c: var(--r-mythic); box-shadow: inset -6px -8px 0 rgba(0, 0, 0, 0.18), 0 0 22px var(--r-mythic); }
+.egg--secret {
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9) 0 7%, transparent 8%), var(--r-secret);
+  background-size: 100%, 300% 100%; animation: rainbow 1.6s linear infinite;
+  box-shadow: 0 0 26px #fff, 0 6px 0 rgba(0, 0, 0, 0.3);
+}
+@keyframes rainbow { to { background-position: 0 0, 300% 0; } }
+
+/* ---------- Steal An Egg ---------- */
+.egg-hud { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+.egg-hud__item, .egg-hud__hearts {
+  padding: 8px 14px; border-radius: 999px; background: var(--surface-2); font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.egg-hud__hearts { margin-left: auto; letter-spacing: 2px; }
+.egg-arena {
+  position: relative; overflow: hidden; border-radius: var(--radius-lg); min-height: 360px;
+  padding: 120px 0 24px; display: grid; gap: 28px; align-content: end;
+  background: linear-gradient(180deg, #2b7a3d 0%, #1f5c2e 100%);
+  border: 4px solid #143d1f; box-shadow: var(--shadow-float);
+}
+.egg-arena::after { content: ""; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 0 0 rgba(255, 0, 60, 0); transition: box-shadow 200ms; }
+.egg-arena.is-watched::after { box-shadow: inset 0 0 60px 10px rgba(255, 30, 60, 0.55); }
+.egg-arena.flash { animation: hit 400ms ease-out; }
+@keyframes hit { 0%, 100% { translate: 0 0; } 25% { translate: -8px 0; } 75% { translate: 8px 0; } }
+
+.egg-owner { position: absolute; top: 14px; left: 50%; translate: -50% 0; display: grid; justify-items: center; gap: 4px; z-index: 2; }
+.egg-owner__head {
+  width: 64px; height: 64px; border-radius: 12px; background: #f5cd3a; box-shadow: inset -6px -6px 0 rgba(0, 0, 0, 0.15), 0 5px 0 rgba(0, 0, 0, 0.3);
+  display: grid; place-items: center; transition: transform 250ms var(--ease-bounce);
+}
+.egg-owner__eyes { width: 34px; height: 10px; background: radial-gradient(circle at 20% 50%, #111 0 4px, transparent 5px), radial-gradient(circle at 80% 50%, #111 0 4px, transparent 5px); }
+.egg-owner.is-away .egg-owner__head { transform: rotateY(180deg); background: #d9b22c; }
+.egg-owner.is-away .egg-owner__eyes { visibility: hidden; }
+.egg-owner.is-watching .egg-owner__eyes { background: radial-gradient(circle at 20% 50%, #ff1f45 0 5px, transparent 6px), radial-gradient(circle at 80% 50%, #ff1f45 0 5px, transparent 6px); }
+.egg-owner__bubble { position: absolute; top: -6px; right: -26px; font: 400 1.5rem var(--font-display); color: var(--egg); text-shadow: 0 3px 0 #000; }
+.egg-owner.is-warning .egg-owner__bubble { animation: lv-pop 600ms var(--ease-bounce) infinite; }
+.egg-owner__label { font-size: 0.75rem; font-weight: 700; background: rgba(0, 0, 0, 0.45); padding: 2px 10px; border-radius: 999px; }
+
+.egg-lane {
+  position: relative; height: 84px;
+  background: repeating-linear-gradient(90deg, #3b3f55 0 26px, #2c2f42 26px 52px);
+  border-block: 5px solid #1b1d2b; animation: belt 0.9s linear infinite;
+}
+.egg-lane--rev { animation-direction: reverse; }
+@keyframes belt { to { background-position: 52px 0; } }
+.egg-lane .egg { position: absolute; left: 0; top: 2px; transform: translate3d(var(--x, -60px), 0, 0); cursor: grab; }
+.egg-lane .egg:hover { filter: brightness(1.12); }
+.egg.is-stolen { animation: stolen 420ms ease-in forwards; pointer-events: none; }
+.egg.is-caught { animation: caught 380ms ease-out; }
+@keyframes stolen { to { transform: translate3d(var(--x), -160px, 0) scale(0.3) rotate(25deg); opacity: 0; } }
+@keyframes caught { 25% { transform: translate3d(calc(var(--x) - 6px), 0, 0); } 75% { transform: translate3d(calc(var(--x) + 6px), 0, 0); } }
+
+.egg-overlay { position: absolute; inset: 0; z-index: 3; display: grid; place-content: center; justify-items: center; gap: 14px; padding: 24px; text-align: center; background: rgba(11, 16, 38, 0.82); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.egg-overlay__title { font: 400 1.5rem var(--font-display); color: var(--egg); }
+.egg-overlay__text { max-width: 40ch; color: var(--muted); }
+
+.egg-result { margin-top: var(--space-4); display: grid; gap: 14px; justify-items: center; text-align: center; padding: var(--space-4); border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--line); }
+.egg-result__title { font: 400 1.3rem var(--font-display); }
+.egg-result__hint { color: var(--muted); }
+.hatch-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; width: 100%; }
+.hatch {
+  display: grid; justify-items: center; gap: 8px; padding: 16px; border: 2px solid var(--line); border-radius: var(--radius);
+  background: var(--surface-2); text-align: center; min-height: 150px;
+}
+.hatch:not(.is-open):hover .hatch__egg { animation: wobble 500ms ease-in-out infinite; }
+.hatch.is-open .hatch__egg { animation: crack 500ms ease-out forwards; }
+.hatch__tier { font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.hatch__pet { font-weight: 700; color: var(--egg); animation: line-in 300ms var(--ease-out); }
+.hatch__wish { font-size: 0.92rem; animation: line-in 400ms var(--ease-out); }
+@keyframes wobble { 25% { rotate: -8deg; } 75% { rotate: 8deg; } }
+@keyframes crack { 40% { transform: scale(1.25); } 100% { transform: scale(0); opacity: 0; } }
+.hatch.is-open { border-color: var(--egg); background: radial-gradient(circle at 50% 15%, rgba(255, 200, 61, 0.28), var(--surface-2) 65%); }
+.hatch.is-open .hatch__egg { height: 0; margin-block: -4px; transition: height 300ms 400ms; }
+
+/* ---------- Blox Fruit gacha ---------- */
+.gacha { display: grid; gap: var(--space-3); justify-items: center; }
+.gacha__window {
+  position: relative; width: 100%; overflow: hidden; padding: 18px 0; border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, #0f3a5c, #0b2440); border: 4px solid #0a1c30; box-shadow: var(--shadow-float);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+}
+.gacha__marker { position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; translate: -50% 0; background: var(--egg); z-index: 2; box-shadow: 0 0 14px var(--egg); }
+.gacha__strip { display: flex; gap: 12px; width: max-content; padding-inline: 12px; will-change: transform; }
+.gacha__item, .gacha__slot-tile {
+  --c: var(--r-common);
+  width: 96px; height: 96px; flex: none; display: grid; place-items: center; border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.06); /* fallback when color-mix is unsupported */
+  background: radial-gradient(circle, color-mix(in srgb, var(--c) 35%, transparent), rgba(255, 255, 255, 0.04) 70%);
+  border: 3px solid var(--c);
+}
+.gacha__item img, .gacha__slot-tile img { width: 80%; height: 80%; object-fit: contain; }
+.rarity--uncommon { --c: var(--r-uncommon); }
+.rarity--rare { --c: var(--r-rare); }
+.rarity--legendary { --c: var(--r-epic); }
+.rarity--mythical { --c: var(--r-mythic); }
+.fruit-fallback { font: 400 2rem var(--font-display); }
+
+.gacha__reveal { width: min(560px, 100%); animation: toast-in 450ms var(--ease-bounce); }
+.gacha__card {
+  --c: var(--r-common);
+  display: grid; grid-template-columns: 120px 1fr; gap: 16px; align-items: center; padding: 18px; border-radius: var(--radius-lg);
+  background: var(--surface); border: 3px solid var(--c); box-shadow: 0 0 30px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 0 30px color-mix(in srgb, var(--c) 45%, transparent);
+}
+.gacha__card > img { width: 120px; height: 120px; object-fit: contain; animation: float 3s ease-in-out infinite; }
+.gacha__rarity { display: inline-block; padding: 2px 10px; border-radius: 999px; background: var(--c); color: var(--ink); font-weight: 700; font-size: 0.8rem; }
+.gacha__name { font: 400 1.4rem var(--font-display); margin: 6px 0; }
+.gacha__wish { color: var(--muted); }
+.gacha__inv { width: 100%; }
+.gacha__inv-title { font-weight: 700; margin-bottom: 10px; }
+.gacha__inv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
+.gacha__slot .gacha__slot-tile { width: 100%; height: auto; aspect-ratio: 1; }
+.gacha__slot:not(.is-owned) img { filter: brightness(0) opacity(0.35); }
+.gacha__slot:not(.is-owned) .gacha__slot-tile { --c: var(--line); }
+
+/* ---------- Cake ---------- */
+.cake-stage { display: grid; justify-items: center; gap: var(--space-3); text-align: center; }
+.cake { position: relative; display: grid; justify-items: center; padding-top: 10px; width: min(360px, 100%); }
+.cake__candles { display: flex; align-items: flex-end; gap: 32px; /* flame hit areas (44px) must not overlap */ height: 110px; margin-bottom: -6px; position: relative; z-index: 1; }
+.candle {
+  position: relative; width: 12px; height: 54px; border-radius: 4px;
+  background: repeating-linear-gradient(-45deg, #fff 0 6px, var(--accent) 6px 12px);
+}
+.candle--num { width: 40px; height: 62px; background: none; display: grid; place-items: end center; }
+.candle--num::before { content: attr(data-num); font: 400 3.4rem/1 var(--font-display); color: var(--egg); text-shadow: 0 4px 0 var(--egg-dark); }
+.flame {
+  position: absolute; left: 50%; bottom: 100%; translate: -50% 0;
+  width: 44px; height: 52px; padding: 0; border: 0; background: none; display: grid; place-items: end center;
+}
+.flame::before {
+  content: ""; width: 16px; height: 26px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: radial-gradient(circle at 50% 70%, #fff 0 18%, #ffe066 30%, #ff9a1f 70%);
+  box-shadow: 0 0 18px 6px rgba(255, 170, 40, 0.55);
+  transform-origin: 50% 90%; animation: flicker 0.18s ease-in-out infinite alternate;
+}
+.candle--num .flame { bottom: calc(100% - 2px); }
+.flame.is-out::before { animation: none; background: transparent; box-shadow: none; }
+.flame.is-out::after { content: ""; position: absolute; bottom: 4px; width: 10px; height: 10px; border-radius: 50%; background: rgba(200, 200, 220, 0.5); animation: smoke 900ms ease-out forwards; }
+@keyframes flicker { to { transform: scale(0.92, 1.08) rotate(3deg); } }
+@keyframes smoke { to { transform: translateY(-50px) scale(2.4); opacity: 0; } }
+.cake__tier { position: relative; border-radius: 14px 14px 8px 8px; box-shadow: inset 0 -10px 0 rgba(0, 0, 0, 0.12); overflow: hidden; }
+.cake__tier--top { width: 84%; height: 56px; background: #ffb3c9; }
+.cake__tier--mid { width: 91%; height: 66px; background: #8ad3ff; display: grid; place-items: center; }
+.cake__tier--base { width: 96%; height: 74px; background: #a98bff; }
+.cake__drip { position: absolute; inset: 0 0 auto; height: 26px; background: radial-gradient(circle at 12px 14px, #fff 11px, transparent 12px) 0 0 / 24px 26px repeat-x; }
+.cake__drip::before { content: ""; position: absolute; inset: 0 0 auto; height: 14px; background: #fff; }
+.cake__text { position: relative; font: 400 1.2rem var(--font-display); color: #fff; text-shadow: 0 3px 0 var(--primary-dark); margin-top: 12px; }
+.cake__plate { width: 100%; height: 16px; border-radius: 50%; background: #dfe4f5; box-shadow: 0 8px 0 rgba(0, 0, 0, 0.25); }
+.cake__status { font-weight: 600; }
+.cake__actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.cake__wish { font: 400 1.1rem var(--font-display); color: var(--egg); max-width: 32ch; }
+
+@media (max-width: 400px) {
+  .gacha__card { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .egg-lane { animation: none; }
+}

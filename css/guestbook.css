@@ -1,0 +1,55 @@
+/* Guestbook (chat bubbles + form) and egg leaderboard */
+.gb-status {
+  display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px;
+  background: var(--surface-2); font-size: 0.88rem; font-weight: 600; color: var(--muted);
+}
+.gb-status::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--muted); flex: none; }
+.gb-status[data-state="online"]::before { background: var(--play); box-shadow: 0 0 8px var(--play); }
+.gb-status[data-state="waking"]::before { background: var(--egg); animation: pulse 1.2s ease-in-out infinite; }
+.gb-status[data-state="offline"]::before { background: var(--accent); }
+
+.gb-list { display: grid; gap: 12px; margin-top: var(--space-3); max-height: 560px; overflow-y: auto; padding-right: 4px; overscroll-behavior: contain; }
+.gb-wish { display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: start; }
+.gb-wish.is-new { animation: toast-in 450ms var(--ease-bounce); }
+.gb-wish__avatar {
+  width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center;
+  font: 400 1.1rem var(--font-display); color: #fff; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
+}
+.gb-wish__body { background: var(--surface); border: 1px solid var(--line); border-radius: 4px var(--radius) var(--radius) var(--radius); padding: 10px 14px; min-width: 0; }
+.gb-wish__head { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.gb-wish__head b { color: #ffb347; overflow-wrap: anywhere; }
+.gb-wish__head span { font-size: 0.78rem; color: var(--muted); }
+.gb-wish__msg { margin-top: 4px; white-space: pre-line; overflow-wrap: anywhere; }
+
+.gb-form {
+  margin-top: var(--space-4); max-width: 560px; display: grid; gap: var(--space-3);
+  padding: var(--space-4); border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--line);
+}
+.gb-form__title { font: 400 1.25rem var(--font-display); }
+.field { display: grid; gap: 6px; }
+.field label { font-weight: 700; }
+.field input, .field textarea, .lb__row input {
+  width: 100%; min-height: 48px; padding: 12px 14px; border-radius: var(--radius-sm);
+  border: 2px solid var(--surface-2); background: var(--bg-2); font-size: 1rem; resize: vertical;
+}
+.field input:focus-visible, .field textarea:focus-visible, .lb__row input:focus-visible { border-color: var(--primary); outline-offset: 1px; }
+.field__hint { font-size: 0.8rem; color: var(--muted); text-align: right; }
+.field__error { font-size: 0.88rem; color: #ff8fa8; min-height: 0; }
+.field__error:empty { display: none; }
+/* honeypot: off-screen, not display:none (some bots skip hidden fields) */
+.gb-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+.lb { padding: var(--space-4); border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--line); display: grid; gap: 12px; }
+.lb__title { font: 400 1.15rem var(--font-display); }
+.lb__list { display: grid; gap: 6px; }
+.lb__list:empty { display: none; }
+.lb__item { display: grid; grid-template-columns: 44px 1fr auto; gap: 10px; align-items: center; padding: 8px 12px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.lb__item--top1 { background: linear-gradient(90deg, rgba(255, 200, 61, 0.35), var(--surface-2)); }
+.lb__item--top2 { background: linear-gradient(90deg, rgba(195, 203, 227, 0.3), var(--surface-2)); }
+.lb__item--top3 { background: linear-gradient(90deg, rgba(205, 127, 50, 0.35), var(--surface-2)); }
+.lb__rank { font-family: var(--font-display); color: var(--muted); }
+.lb__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb__note { color: var(--muted); font-size: 0.92rem; }
+.lb__save { display: grid; gap: 8px; }
+.lb__row { display: flex; gap: 8px; }
+.lb__row input { flex: 1; min-width: 0; }
