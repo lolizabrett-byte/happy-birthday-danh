@@ -23,12 +23,12 @@ CREATE TABLE IF NOT EXISTS scores (
 	id TEXT PRIMARY KEY, name TEXT NOT NULL, score INTEGER NOT NULL, created_at TEXT NOT NULL);
 CREATE INDEX IF NOT EXISTS idx_scores_rank ON scores (score DESC, created_at);`
 
-// tursoStore talks to Turso over the pure-Go libsql client (no CGO).
-type tursoStore struct{ db *sql.DB }
+// sqlStore runs the shared SQL over database/sql: Turso (libsql client) or a local SQLite file.
+type sqlStore struct{ db *sql.DB }
 
 // newTursoStore connects and creates tables. The driver maps libsql:// to https (stateless HTTP requests,
 // no websocket), so the URL from the Turso dashboard is used as-is.
-func newTursoStore(ctx context.Context, url, token string) (*tursoStore, error) {
+func newTursoStore(ctx context.Context, url, token string) (*sqlStore, error) {
 	var opts []libsql.Option
 	if token != "" {
 		opts = append(opts, libsql.WithAuthToken(token))
@@ -39,7 +39,7 @@ func newTursoStore(ctx context.Context, url, token string) (*tursoStore, error) 
 	}
 	db := sql.OpenDB(conn)
 	db.SetConnMaxLifetime(5 * time.Minute)
-	s := &tursoStore{db: db}
+	s := &sqlStore{db: db}
 	if err := s.init(ctx); err != nil {
 		_ = db.Close()
 		return nil, err
@@ -47,7 +47,7 @@ func newTursoStore(ctx context.Context, url, token string) (*tursoStore, error) 
 	return s, nil
 }
 
-func (s *tursoStore) init(ctx context.Context) error {
+func (s *sqlStore) init(ctx context.Context) error {
 	for _, stmt := range strings.Split(schema, ";") {
 		if strings.TrimSpace(stmt) == "" {
 			continue
@@ -59,16 +59,16 @@ func (s *tursoStore) init(ctx context.Context) error {
 	return nil
 }
 
-func (s *tursoStore) Close() error { return s.db.Close() }
+func (s *sqlStore) Close() error { return s.db.Close() }
 
-func (s *tursoStore) Ping(ctx context.Context) error {
+func (s *sqlStore) Ping(ctx context.Context) error {
 	ctx, cancel := context.WithTimeout(ctx, storeTimeout)
 	defer cancel()
 	var one int
 	return s.db.QueryRowContext(ctx, "SELECT 1").Scan(&one)
 }
 
-func (s *tursoStore) AddWish(ctx context.Context, w Wish) error {
+func (s *sqlStore) AddWish(ctx context.Context, w Wish) error {
 	ctx, cancel := context.WithTimeout(ctx, storeTimeout)
 	defer cancel()
 	_, err := s.db.ExecContext(ctx,
@@ -77,7 +77,7 @@ func (s *tursoStore) AddWish(ctx context.Context, w Wish) error {
 	return err
 }
 
-func (s *tursoStore) ListWishes(ctx context.Context, limit int) ([]Wish, error) {
+func (s *sqlStore) ListWishes(ctx context.Context, limit int) ([]Wish, error) {
 	ctx, cancel := context.WithTimeout(ctx, storeTimeout)
 	defer cancel()
 	rows, err := s.db.QueryContext(ctx,
@@ -101,7 +101,7 @@ func (s *tursoStore) ListWishes(ctx context.Context, limit int) ([]Wish, error) 
 	return out, rows.Err()
 }
 
-func (s *tursoStore) AddScore(ctx context.Context, sc Score) error {
+func (s *sqlStore) AddScore(ctx context.Context, sc Score) error {
 	ctx, cancel := context.WithTimeout(ctx, storeTimeout)
 	defer cancel()
 	_, err := s.db.ExecContext(ctx,
@@ -110,7 +110,7 @@ func (s *tursoStore) AddScore(ctx context.Context, sc Score) error {
 	return err
 }
 
-func (s *tursoStore) TopScores(ctx context.Context, limit int) ([]Score, error) {
+func (s *sqlStore) TopScores(ctx context.Context, limit int) ([]Score, error) {
 	ctx, cancel := context.WithTimeout(ctx, storeTimeout)
 	defer cancel()
 	rows, err := s.db.QueryContext(ctx,

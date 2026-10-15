@@ -1,0 +1,24 @@
+[Unit]
+Description=Danh birthday API (guestbook + egg leaderboard)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/opt/danh-birthday/api
+# Unprivileged throwaway user; state lives in /var/lib/danh-birthday (StateDirectory).
+DynamicUser=yes
+StateDirectory=danh-birthday
+Environment=HOST=127.0.0.1
+Environment=PORT=8091
+Environment=SQLITE_PATH=/var/lib/danh-birthday/bd.db
+Environment=ALLOWED_ORIGINS=https://lolizabrett-byte.github.io
+Restart=on-failure
+RestartSec=3
+MemoryMax=128M
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

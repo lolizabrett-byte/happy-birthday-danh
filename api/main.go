@@ -38,8 +38,9 @@ func run() error {
 	e.Server.WriteTimeout = 15 * time.Second
 	e.Server.IdleTimeout = 60 * time.Second
 	errCh := make(chan error, 1)
-	go func() { errCh <- e.Start(":" + cfg.Port) }()
-	slog.Info("listening", "port", cfg.Port)
+	addr := cfg.Host + ":" + cfg.Port
+	go func() { errCh <- e.Start(addr) }()
+	slog.Info("listening", "addr", addr)
 
 	select {
 	case err := <-errCh:
@@ -55,9 +56,19 @@ func run() error {
 	return e.Shutdown(shutdownCtx)
 }
 
-// newStore picks turso when TURSO_DATABASE_URL is set, otherwise the in-memory dev store
-// (refused on Render, where a silent memory store would lose every wish on restart).
+// newStore picks turso when TURSO_DATABASE_URL is set, a local SQLite file when SQLITE_PATH is set,
+// otherwise the in-memory dev store (refused on Render, where it would lose every wish on restart).
 func newStore(ctx context.Context, cfg Config) (Store, func(), error) {
+	if cfg.TursoURL == "" && cfg.SQLitePath != "" {
+		initCtx, cancel := context.WithTimeout(ctx, 15*time.Second)
+		defer cancel()
+		ss, err := newSQLiteStore(initCtx, cfg.SQLitePath)
+		if err != nil {
+			return nil, nil, err
+		}
+		slog.Info("using sqlite store", "path", cfg.SQLitePath)
+		return ss, func() { _ = ss.Close() }, nil
+	}
 	if cfg.TursoURL == "" {
 		if cfg.OnRender {
 			return nil, nil, errors.New("TURSO_DATABASE_URL is required when running on Render")

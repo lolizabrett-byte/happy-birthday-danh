@@ -54,6 +54,13 @@ Muốn frontend gọi API local thì đặt `API_BASE = 'http://localhost:8080'`
    | `ALLOWED_ORIGINS` | `https://lolizabrett-byte.github.io` (không kèm path repo, không có `/` ở cuối) |
 4. Đặt URL của Render (`https://danh-birthday-api.onrender.com`) vào `API_BASE` trong `site/js/config.js`, rồi push.
 
+**Tự host trên VPS (đang dùng):** API chạy thành service `danh-birthday-api` (port 8091, chỉ nghe localhost), dữ liệu lưu trong SQLite tại `/var/lib/danh-birthday/bd.db`. Từ ngoài truy cập qua Caddy ở `https://test.sunmedia.net.vn/danh-bd-api/`.
+```bash
+bash deploy/vps/deploy.sh             # build + cài/cập nhật service
+bash deploy/vps/enable-caddy-route.sh # thêm route HTTPS (chỉ cần chạy 1 lần; có backup + validate trước khi reload)
+```
+Khi đó `API_BASE = 'https://test.sunmedia.net.vn/danh-bd-api'`.
+
 Lưu ý: Render free sẽ ngủ sau 15 phút không có request. Trang web gọi `/healthz` ngay khi mở để đánh thức server, lần đầu mất khoảng 1 phút.
 
 ## Cấu trúc

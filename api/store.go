@@ -23,7 +23,7 @@ type Score struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
-// Store is the persistence boundary; memoryStore (dev/tests) and tursoStore (prod) implement it.
+// Store is the persistence boundary; memoryStore (dev/tests) and sqlStore (Turso or SQLite) implement it.
 type Store interface {
 	ListWishes(ctx context.Context, limit int) ([]Wish, error)
 	AddWish(ctx context.Context, w Wish) error
