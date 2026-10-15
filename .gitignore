@@ -1,0 +1,15 @@
+.env
+.env.*
+*.exe
+*.test
+api/tmp/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+plans/**/.cook-state.json
+
+# local dev tooling, not part of the site
+plans/
+.claude/
+CLAUDE.md

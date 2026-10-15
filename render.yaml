@@ -1,0 +1,22 @@
+# Render Blueprint for the birthday API (free web service, Docker).
+# Secrets are entered in the Render dashboard (sync: false), never committed.
+services:
+  - type: web
+    name: danh-birthday-api
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./api/Dockerfile
+    dockerContext: ./api
+    healthCheckPath: /healthz
+    autoDeploy: true
+    buildFilter:
+      paths:
+        - api/**
+    envVars:
+      - key: TURSO_DATABASE_URL
+        sync: false
+      - key: TURSO_AUTH_TOKEN
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
